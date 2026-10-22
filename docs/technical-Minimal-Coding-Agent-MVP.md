@@ -54,8 +54,8 @@ minimal-coding-agent/
 | -------- | ------------------------------------ | -------------------- |
 | 前端渲染 | React 18 + TypeScript + Tailwind CSS | 聊天界面构建         |
 | 桌面框架 | Electron 30 + electron-vite          | 桌面应用打包与热重载 |
-| 代理核心 | Node.js 20 + TypeScript              | ReAct循环与工具执行  |
-| 持久化   | better-sqlite3 + JSONL 文件          | 混合存储方案         |
+| 代理核心 | Node.js 24 + TypeScript              | ReAct循环与工具执行  |
+| 持久化   | node:sqlite + JSONL 文件             | 混合存储方案         |
 | LLM对接  | Fetch API + SSE解析                  | Deepseek API流式调用 |
 | 构建工具 | Vite + tsup                          | 前端与库构建         |
 | 包管理   | pnpm 9 + workspace                   | monorepo依赖管理     |

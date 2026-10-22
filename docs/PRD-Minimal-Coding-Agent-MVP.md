@@ -164,7 +164,7 @@
   -  会话列表、配置项存储在SQLite数据库
   -  重启应用后可以恢复历史会话
   -  可以查看每个会话的创建与更新时间
-- **Dependencies:** better-sqlite3库、文件系统
+- **Dependencies:** node:sqlite（Node 内置）、文件系统
 - **Estimated Effort:** S
 
 ### Should Have (P1)
@@ -329,7 +329,7 @@
 
 ### Dependencies
 
-- **External:** Anthropic Claude API服务、better-sqlite3库、CodeMirror 6（可选）
+- **External:** Anthropic Claude API服务、node:sqlite（Node 内置）、CodeMirror 6（可选）
 - **Internal:** agent-core模块、storage模块、desktop UI模块
 
 ------

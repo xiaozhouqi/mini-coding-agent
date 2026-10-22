@@ -6,8 +6,9 @@
 
 MVP 开发中（v0.1）：
 
-- ✅ 代理核心（`agent-core`）：ReAct 循环、`read_file` 工具、路径沙箱、Deepseek LLM 适配器（含流式 SSE 解析）
-- ⏳ 待实现：`write_file` + 写入审批、`glob_files`/`search_code`、会话持久化（SQLite + JSONL）、Electron 桌面端
+- ✅ 代理核心（`agent-core`）：ReAct 循环、`read_file`/`write_file`/`glob_files`/`search_code`、路径沙箱、Deepseek LLM 适配器（含流式 SSE 解析）
+- ✅ 持久化（`storage`）：SQLite（`node:sqlite`）+ JSONL 会话持久化
+- ⏳ 待实现：Electron 桌面端（`write_file` 审批弹窗、`safeStorage` 密钥存储）
 
 ## 技术栈
 
@@ -15,8 +16,8 @@ MVP 开发中（v0.1）：
 |----|------|
 | 前端（规划中） | React 18 + TypeScript + Tailwind CSS |
 | 桌面（规划中） | Electron 30 + electron-vite |
-| 代理核心 | Node.js 20 + TypeScript |
-| 持久化（规划中） | better-sqlite3 + JSONL |
+| 代理核心 | Node.js 24 + TypeScript |
+| 持久化 | node:sqlite + JSONL |
 | LLM | Deepseek API（`deepseek-v4-pro`），Fetch + SSE 流式 |
 | 构建 / 测试 | pnpm workspace + TypeScript + Vitest |
 
@@ -27,7 +28,7 @@ minimal-coding-agent/
 ├── packages/
 │   ├── shared-types/   # 全局类型契约（接口定义）
 │   ├── agent-core/     # ReAct 循环、工具集、沙箱、LLM 适配器
-│   ├── storage/        # （规划中）SQLite + JSONL 持久化
+│   ├── storage/        # SQLite（node:sqlite）+ JSONL 持久化
 │   └── desktop/        # （规划中）Electron 主进程 + React 渲染进程
 ├── agent_docs/         # 开发文档（brief / tech_stack / testing / code_patterns）
 ├── docs/               # PRD 与技术设计
@@ -37,7 +38,7 @@ minimal-coding-agent/
 
 ## 快速开始
 
-要求：Node.js ≥ 20，pnpm。
+要求：Node.js ≥ 24，pnpm。
 
 ```bash
 # 安装依赖

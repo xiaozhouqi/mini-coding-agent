@@ -1,6 +1,6 @@
 # Tech Stack
 
-Last verified: unverified — from Tech Design (Final, 2026-10-19); no scaffold exists yet.
+Last verified: 2026-10-22 — scaffold + agent-core + storage implemented; storage uses node:sqlite (see MEMORY.md).
 
 ## Stack
 
@@ -8,8 +8,8 @@ Last verified: unverified — from Tech Design (Final, 2026-10-19); no scaffold 
 |------|--------|-------|
 | Frontend | React 18 + TypeScript + Tailwind CSS | chat UI, tool cards, settings panel |
 | Desktop | Electron 30 + electron-vite | window mgmt, IPC, hot reload |
-| Agent core | Node.js 20 + TypeScript | ReAct loop in a child process |
-| Database | better-sqlite3 (metadata) + JSONL files (messages) | hybrid: event-sourced messages + relational metadata |
+| Agent core | Node.js 24 + TypeScript | ReAct loop in a child process |
+| Database | node:sqlite (metadata) + JSONL files (messages) | hybrid: event-sourced messages + relational metadata |
 | Auth | none | local desktop app, no accounts |
 | Styling | Tailwind CSS | minimal, no design system |
 | LLM | Deepseek API (`deepseek-v4-pro`) | Fetch + SSE streaming; resolved over PRD's Claude |

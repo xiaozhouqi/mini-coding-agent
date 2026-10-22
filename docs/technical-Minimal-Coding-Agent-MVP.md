@@ -360,7 +360,7 @@ desktop/
 | 字段        | 类型   | 说明                         |
 | ----------- | ------ | ---------------------------- |
 | apiKey      | string | Deepseek API密钥（加密存储） |
-| model       | string | 模型名称，默认deepseek-chat  |
+| model       | string | 模型名称，默认deepseek-v4-pro  |
 | tokenBudget | number | 每会话token预算，默认100000  |
 
 ### 4.2 SQLite Database Schema
@@ -380,7 +380,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS config (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   api_key TEXT,
-  model TEXT NOT NULL DEFAULT 'deepseek-chat',
+  model TEXT NOT NULL DEFAULT 'deepseek-v4-pro',
   token_budget INTEGER NOT NULL DEFAULT 100000
 );
 ```

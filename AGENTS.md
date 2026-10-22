@@ -35,7 +35,7 @@ Read only the documents needed for the task. Current progress lives in `MEMORY.m
 - **The agent runs in a child process**, not in the Electron main/renderer. It talks over stdio as newline-delimited JSONL frames. Don't collapse this into the main process — the process boundary is itself a teaching point.
 - **Every `write_file` needs a user confirmation.** No batch-approve, no allowlist. Approval round-trips: agent child → main → renderer modal → back.
 - **The sandbox is non-negotiable.** All file tools resolve `realpath` and check the workspace prefix; reads block a sensitive-file blacklist. Symlink escapes and `..` traversal must be rejected, not just warned.
-- **LLM provider is Deepseek**, not Anthropic (PRD and Tech Design disagreed; Deepseek was confirmed as final). Default model is `deepseek-chat`.
+- **LLM provider is Deepseek**, not Anthropic (PRD and Tech Design disagreed; Deepseek was confirmed as final). Default model is `deepseek-v4-pro`.
 
 ## Protected areas
 

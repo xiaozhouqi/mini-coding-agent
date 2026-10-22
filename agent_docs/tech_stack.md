@@ -12,7 +12,7 @@ Last verified: unverified — from Tech Design (Final, 2026-10-19); no scaffold 
 | Database | better-sqlite3 (metadata) + JSONL files (messages) | hybrid: event-sourced messages + relational metadata |
 | Auth | none | local desktop app, no accounts |
 | Styling | Tailwind CSS | minimal, no design system |
-| LLM | Deepseek API (`deepseek-chat`) | Fetch + SSE streaming; resolved over PRD's Claude |
+| LLM | Deepseek API (`deepseek-v4-pro`) | Fetch + SSE streaming; resolved over PRD's Claude |
 | Build | Vite + tsup | renderer + library builds |
 | Package mgr | pnpm 9 + workspace | monorepo, one-way deps |
 
@@ -29,7 +29,7 @@ All proposed from the Tech Design; unverified until the scaffold is built.
 
 ## AI Runtime
 
-- Provider/runtime: Deepseek (`deepseek-chat` default), Fetch API + SSE streaming in agent-core.
+- Provider/runtime: Deepseek (`deepseek-v4-pro` default), Fetch API + SSE streaming in agent-core.
 - Model can see:
   - Public: user messages.
   - User-owned: workspace file contents read by tools, after desensitization.

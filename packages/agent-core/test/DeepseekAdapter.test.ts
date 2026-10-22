@@ -39,7 +39,7 @@ describe('DeepseekAdapter (mocked fetch)', () => {
     );
     vi.stubGlobal('fetch', vi.fn(async () => new Response(stream, { status: 200 })));
 
-    const adapter = new DeepseekAdapter({ apiKey: 'test', model: 'deepseek-chat' });
+    const adapter = new DeepseekAdapter({ apiKey: 'test', model: 'deepseek-v4-pro' });
     const chunks = await collectChunks(adapter.chat([{ role: 'user', content: 'read a.txt' }], { stream: true }));
 
     const text = chunks.filter((c) => c.textDelta).map((c) => c.textDelta).join('');
@@ -69,13 +69,13 @@ describe('DeepseekAdapter (mocked fetch)', () => {
       }),
     );
 
-    const adapter = new DeepseekAdapter({ apiKey: 'sk-test', model: 'deepseek-chat' });
+    const adapter = new DeepseekAdapter({ apiKey: 'sk-test', model: 'deepseek-v4-pro' });
     const tools = [{ name: 'read_file', description: 'Read a file', parameters: { type: 'object', properties: {} } }];
     const chunks = await collectChunks(adapter.chat([{ role: 'user', content: 'hi' }], { stream: true, tools }));
 
     expect(chunks).toEqual([]);
     expect(auth).toBe('Bearer sk-test');
-    expect(body.model).toBe('deepseek-chat');
+    expect(body.model).toBe('deepseek-v4-pro');
     expect(body.stream).toBe(true);
     expect(body.messages).toEqual([{ role: 'user', content: 'hi' }]);
     expect(body.tools).toEqual([{ type: 'function', function: tools[0] }]);
@@ -83,7 +83,7 @@ describe('DeepseekAdapter (mocked fetch)', () => {
 
   it('throws on a non-OK response', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('bad key', { status: 401 })));
-    const adapter = new DeepseekAdapter({ apiKey: 'bad', model: 'deepseek-chat' });
+    const adapter = new DeepseekAdapter({ apiKey: 'bad', model: 'deepseek-v4-pro' });
     const result = collectChunks(adapter.chat([{ role: 'user', content: 'hi' }], { stream: true }));
     await expect(result).rejects.toThrow(/401/);
   });
@@ -93,7 +93,7 @@ describe('DeepseekAdapter (mocked fetch)', () => {
 const apiKey = process.env.DEEPSEEK_API_KEY;
 describe.skipIf(!apiKey)('DeepseekAdapter (live)', () => {
   it('streams a plain-text reply from the real API', async () => {
-    const adapter = new DeepseekAdapter({ apiKey: apiKey!, model: 'deepseek-chat' });
+    const adapter = new DeepseekAdapter({ apiKey: apiKey!, model: 'deepseek-v4-pro' });
     const chunks = await collectChunks(
       adapter.chat([{ role: 'user', content: 'Reply with exactly one word: ok' }], { stream: true }),
     );

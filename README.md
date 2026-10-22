@@ -17,7 +17,7 @@ MVP 开发中（v0.1）：
 | 桌面（规划中） | Electron 30 + electron-vite |
 | 代理核心 | Node.js 20 + TypeScript |
 | 持久化（规划中） | better-sqlite3 + JSONL |
-| LLM | Deepseek API（`deepseek-chat`），Fetch + SSE 流式 |
+| LLM | Deepseek API（`deepseek-v4-pro`），Fetch + SSE 流式 |
 | 构建 / 测试 | pnpm workspace + TypeScript + Vitest |
 
 ## 项目结构
@@ -63,7 +63,7 @@ DEEPSEEK_API_KEY=sk-你的密钥
 配置后即可运行一次真实代理（流式输出）：
 
 ```bash
-pnpm smoke -- <工作目录> deepseek-chat "读取某个文件的内容"
+pnpm smoke <工作目录> deepseek-v4-pro "读取某个文件的内容"
 ```
 
 ## 安全设计

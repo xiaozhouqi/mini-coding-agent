@@ -14,10 +14,11 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [2026-10-16] PRD scope locked: 5 P0 features (agent loop, file toolkit, chat UI, sandbox, session persistence); bash/MCP/git/multi-agent out of scope for v0.1.
 - [2026-10-19] Tech Design finalized: Electron 30 + React 18 + TS + Tailwind, pnpm 9 monorepo, agent in a Node child process over stdio JSONL, hybrid persistence (JSONL messages + SQLite metadata), direct tool calling (no MCP).
 - [2026-10-21] LLM provider resolved to **Deepseek** (model `deepseek-chat`). PRD said Anthropic Claude Sonnet 4; Tech Design said Deepseek. User confirmed Deepseek is final.
+- [2026-10-22] Deepseek model names changed: `deepseek-chat` is no longer accepted by the API, which now serves `deepseek-v4-pro` (capable, default) and `deepseek-flash` (fast). Updated the default in cli.ts, tests, and docs.
 
 ## AI / Tooling Decisions
 
-- Provider: Deepseek (`deepseek-chat` default), via Fetch API + SSE streaming.
+- Provider: Deepseek (`deepseek-v4-pro` default), via Fetch API + SSE streaming.
 - Runtime: Electron + Node 20 child process; direct tool calling, not MCP.
 - Retention: PRD states "do-not-store" intent; verify against Deepseek's current policy before launch.
 - Cost ceiling: per-session token budget, default 100000 (PRD value to confirm).

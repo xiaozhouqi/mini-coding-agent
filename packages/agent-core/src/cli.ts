@@ -12,7 +12,7 @@ if (existsSync('.env')) {
   process.loadEnvFile('.env');
 }
 
-// One-shot smoke runner: `pnpm smoke -- <workspace> <model> <message>` with
+// One-shot smoke runner: `pnpm smoke <workspace> <model> <message>` with
 // DEEPSEEK_API_KEY set in the environment or .env. Streams the agent reply.
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
 
   if (!workspace || !message) {
-    console.error('Usage: pnpm smoke -- <workspace> <model> <message>');
+    console.error('Usage: pnpm smoke <workspace> <model> <message>');
     process.exit(1);
   }
   if (!apiKey) {
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const llm = new DeepseekAdapter({ apiKey, model: model ?? 'deepseek-chat' });
+  const llm = new DeepseekAdapter({ apiKey, model: model ?? 'deepseek-v4-pro' });
   const loop = new AgentLoop(llm, createToolExecutor(), new PromptManager());
 
   // Terminal approval for write_file — prompt the user before writing.

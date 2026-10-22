@@ -1,10 +1,16 @@
+import { existsSync } from 'node:fs';
 import { AgentLoop } from './agent/AgentLoop';
 import { PromptManager } from './agent/PromptManager';
 import { DeepseekAdapter } from './llm/DeepseekAdapter';
 import { createToolExecutor } from './tools/registry';
 
+// Load .env so `pnpm smoke` picks up DEEPSEEK_API_KEY from the project root.
+if (existsSync('.env')) {
+  process.loadEnvFile('.env');
+}
+
 // One-shot smoke runner: `pnpm smoke -- <workspace> <model> <message>` with
-// DEEPSEEK_API_KEY set in the environment. Streams the agent reply to stdout.
+// DEEPSEEK_API_KEY set in the environment or .env. Streams the agent reply.
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const [workspace, model, ...messageParts] = args;

@@ -74,4 +74,31 @@ describe('AgentLoop', () => {
     expect(result?.success).toBe(false);
     expect(result?.error).toContain('sensitive');
   });
+
+  it('runs write_file through approval and writes the file', async () => {
+    const ws = makeWorkspace();
+    const approvedPaths: string[] = [];
+
+    let turn = 0;
+    const llm = new FakeLLMAdapter(() => {
+      turn += 1;
+      if (turn === 1) {
+        return [{ toolCalls: [{ id: 'call_1', name: 'write_file', arguments: { path: 'out.txt', content: 'written' } }] }];
+      }
+      return [{ textDelta: 'Done.' }];
+    });
+
+    const loop = new AgentLoop(llm, createToolExecutor(), new PromptManager());
+    const events: AgentStreamEvent[] = [];
+    for await (const e of loop.run('write out.txt', ws, [], async (req) => {
+      approvedPaths.push(req.path);
+      return true;
+    })) {
+      events.push(e);
+    }
+
+    expect(approvedPaths).toEqual(['out.txt']);
+    expect(events.find((e) => e.type === 'tool-result')?.toolResult?.success).toBe(true);
+    expect(fs.readFileSync(path.join(ws, 'out.txt'), 'utf-8')).toBe('written');
+  });
 });

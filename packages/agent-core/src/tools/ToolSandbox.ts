@@ -51,3 +51,27 @@ export function resolveSafePath(workspaceRoot: string, inputPath: string): strin
 
   return realPath;
 }
+
+// TEACHING: Write-path variant — the target file may not exist yet, so resolve
+// the nearest existing ancestor's realpath and re-append the non-existent tail.
+// This still catches ".." traversal and symlink escapes.
+export function resolveSafeWritePath(workspaceRoot: string, inputPath: string): string {
+  const root = fs.realpathSync(path.resolve(workspaceRoot));
+  const absolutePath = path.resolve(root, inputPath);
+
+  let ancestor = absolutePath;
+  const tail: string[] = [];
+  while (!fs.existsSync(ancestor)) {
+    const parent = path.dirname(ancestor);
+    if (parent === ancestor) break; // reached filesystem root
+    tail.unshift(path.basename(ancestor));
+    ancestor = parent;
+  }
+
+  const realAncestor = fs.realpathSync(ancestor);
+  if (realAncestor !== root && !realAncestor.startsWith(root + path.sep)) {
+    throw new SecurityError(`Access denied: path outside workspace (${inputPath})`);
+  }
+
+  return path.join(realAncestor, ...tail);
+}

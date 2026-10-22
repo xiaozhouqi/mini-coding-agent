@@ -16,8 +16,15 @@ export interface ToolResult {
   error?: string;
 }
 
+export interface WriteApprovalRequest {
+  path: string;
+  content: string;
+  exists: boolean;
+}
+
 export interface ToolContext {
   workspaceRoot: string;
+  approveWrite?: (request: WriteApprovalRequest) => Promise<boolean>;
 }
 
 export interface Tool {

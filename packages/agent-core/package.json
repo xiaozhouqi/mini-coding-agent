@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
-    "@minimal-agent/shared-types": "workspace:*"
+    "@minimal-agent/shared-types": "workspace:*",
+    "fast-glob": "^3.3.2"
   }
 }

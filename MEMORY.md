@@ -5,8 +5,8 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 ## Current State
 
 - Current task: Scaffold the Minimal Coding Agent (Teaching Edition) MVP
-- Current phase: agent-core slice implemented (ReAct loop + read_file + sandbox + Deepseek adapter)
-- Next step: Propose the next slice (write_file + approval flow, or glob_files/search_code, or storage)
+- Current phase: agent-core slice complete (ReAct loop + all four tools: read_file, write_file, glob_files, search_code + sandbox + Deepseek adapter)
+- Next step: Propose the next slice (write approval round-trip wiring to Electron, or storage, or desktop)
 - Blocked by: none
 
 ## Decisions
@@ -30,7 +30,7 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 ## Completed
 
 - [x] Initial scaffold (pnpm monorepo + shared-types package)
-- [ ] Agent core — ReAct loop + read_file + sandbox + Deepseek adapter done; write_file/glob_files/search_code pending
+- [x] Agent core — ReAct loop + read_file/write_file/glob_files/search_code + sandbox + Deepseek adapter
 - [ ] Storage (SQLite + JSONL)
 - [ ] Desktop (Electron main + React renderer)
 - [ ] Core MVP flow (chat → tool call → result)

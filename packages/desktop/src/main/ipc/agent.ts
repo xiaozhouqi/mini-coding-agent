@@ -7,7 +7,7 @@ import type { AgentConfig, ChatMessage, InputFrame, Message, OutputFrame, Sessio
 import { IpcChannels } from '@minimal-agent/shared-types';
 import { messagesToChatHistory } from '../history';
 
-const require = createRequire(import.meta.url);
+const nodeRequire = createRequire(import.meta.url);
 
 // TEACHING: Process supervision. This owns the agent child process lifecycle:
 // spawn it, frame its stdout into OutputFrames, and write InputFrames to its
@@ -79,8 +79,8 @@ export class AgentProcessManager {
 function spawnAgentChild(): ChildProcessWithoutNullStreams {
   // TEACHING: the agent core runs as a separate Node child process. In dev we
   // run the TypeScript entry through `tsx`; Node 24 is a project prerequisite.
-  const tsxCli = require.resolve('tsx/cli');
-  const agentEntry = require.resolve('@minimal-agent/agent-core/stdio-main');
+  const tsxCli = nodeRequire.resolve('tsx/cli');
+  const agentEntry = nodeRequire.resolve('@minimal-agent/agent-core/stdio-main');
   return spawn('node', [tsxCli, agentEntry], { stdio: ['pipe', 'pipe', 'pipe'], env: process.env });
 }
 

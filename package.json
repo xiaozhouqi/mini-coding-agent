@@ -7,7 +7,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "echo \"Electron dev mode not implemented yet (next slice)\"",
+    "dev": "pnpm --filter @minimal-agent/desktop dev",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json",

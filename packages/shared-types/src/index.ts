@@ -3,3 +3,6 @@ export type { Tool, ToolCall, ToolContext, ToolDefinition, ToolResult, WriteAppr
 export type { AgentConfig, AppConfig } from './config';
 export type { SessionMetadata } from './session';
 export type { ChatMessage, LLMChunk, TokenUsage } from './llm';
+export { IpcChannels } from './ipc';
+export type { IpcChannel, InputFrame, OutputFrame } from './ipc';
+export type { ConfigView, DesktopApi, LoadedSession } from './api';

@@ -8,14 +8,15 @@ MVP 开发中（v0.1）：
 
 - ✅ 代理核心（`agent-core`）：ReAct 循环、`read_file`/`write_file`/`glob_files`/`search_code`、路径沙箱、Deepseek LLM 适配器（含流式 SSE 解析）
 - ✅ 持久化（`storage`）：SQLite（`node:sqlite`）+ JSONL 会话持久化
-- ⏳ 待实现：Electron 桌面端（`write_file` 审批弹窗、`safeStorage` 密钥存储）
+- ✅ 桌面端（`desktop`）：Electron 主进程 + preload 桥 + React 渲染进程、stdio 子进程接线、`write_file` 审批弹窗、`safeStorage` 密钥存储
+- ⏳ 待实现：核心 MVP 端到端流程验证与上线检查
 
 ## 技术栈
 
 | 层 | 技术 |
 |----|------|
-| 前端（规划中） | React 18 + TypeScript + Tailwind CSS |
-| 桌面（规划中） | Electron 30 + electron-vite |
+| 前端 | React 18 + TypeScript + 纯 CSS（Tailwind 暂缓） |
+| 桌面 | Electron 45 + electron-vite |
 | 代理核心 | Node.js 24 + TypeScript |
 | 持久化 | node:sqlite + JSONL |
 | LLM | Deepseek API（`deepseek-v4-pro`），Fetch + SSE 流式 |
@@ -29,7 +30,7 @@ minimal-coding-agent/
 │   ├── shared-types/   # 全局类型契约（接口定义）
 │   ├── agent-core/     # ReAct 循环、工具集、沙箱、LLM 适配器
 │   ├── storage/        # SQLite（node:sqlite）+ JSONL 持久化
-│   └── desktop/        # （规划中）Electron 主进程 + React 渲染进程
+│   └── desktop/        # Electron 主进程 + preload 桥 + React 渲染进程
 ├── agent_docs/         # 开发文档（brief / tech_stack / testing / code_patterns）
 ├── docs/               # PRD 与技术设计
 ├── AGENTS.md           # AI 编码助手项目指令
@@ -71,7 +72,7 @@ pnpm smoke <工作目录> deepseek-v4-pro "读取某个文件的内容"
 
 - 所有文件工具路径经过沙箱校验（`realpath` + 工作区前缀检查），拦截 `..` 目录遍历与符号链接越权
 - 敏感文件（`.env`、`.pem`、`id_rsa` 等）读取自动拦截
-- 文件写入需用户逐次确认（`write_file` 审批流程，规划中）
+- 文件写入需用户逐次确认（`write_file` 审批弹窗：agent 子进程 → 主进程 → 渲染进程弹窗）
 
 ## 文档
 

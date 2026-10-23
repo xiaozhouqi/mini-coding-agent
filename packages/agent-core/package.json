@@ -9,6 +9,13 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./stdio-server": {
+      "types": "./src/stdio-server.ts",
+      "default": "./src/stdio-server.ts"
+    },
+    "./stdio-main": {
+      "default": "./src/stdio-main.ts"
     }
   },
   "dependencies": {

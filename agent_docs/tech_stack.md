@@ -1,30 +1,28 @@
 # Tech Stack
 
-Last verified: 2026-10-22 — scaffold + agent-core + storage implemented; storage uses node:sqlite (see MEMORY.md).
+Last verified: 2026-10-23 — desktop slice implemented (Electron main + preload + React renderer). `pnpm typecheck` clean, `pnpm test` 53 passed + 1 skipped, desktop `electron-vite build` clean. See MEMORY.md.
 
 ## Stack
 
 | Area | Choice | Notes |
 |------|--------|-------|
-| Frontend | React 18 + TypeScript + Tailwind CSS | chat UI, tool cards, settings panel |
-| Desktop | Electron 30 + electron-vite | window mgmt, IPC, hot reload |
+| Frontend | React 18 + TypeScript + plain CSS | chat UI, tool cards, settings panel; Tailwind deferred |
+| Desktop | Electron 45 + electron-vite | window mgmt, IPC, hot reload; preload emitted as CJS `.cjs` |
 | Agent core | Node.js 24 + TypeScript | ReAct loop in a child process |
 | Database | node:sqlite (metadata) + JSONL files (messages) | hybrid: event-sourced messages + relational metadata |
 | Auth | none | local desktop app, no accounts |
-| Styling | Tailwind CSS | minimal, no design system |
+| Styling | plain CSS | minimal, no design system |
 | LLM | Deepseek API (`deepseek-v4-pro`) | Fetch + SSE streaming; resolved over PRD's Claude |
 | Build | Vite + tsup | renderer + library builds |
 | Package mgr | pnpm 9 + workspace | monorepo, one-way deps |
 
 ## Commands
 
-All proposed from the Tech Design; unverified until the scaffold is built.
-
 - Setup: `pnpm install`
-- Dev: `pnpm dev`
+- Dev: `pnpm dev` (desktop: `pnpm --filter @minimal-agent/desktop dev`)
 - Test: `pnpm test` (Vitest)
 - Typecheck: `pnpm typecheck`
-- Build: `pnpm build`
+- Build: `pnpm build` (desktop: `pnpm --filter @minimal-agent/desktop build`)
 - Browser/device check: run the Electron app (`pnpm dev`) and walk the flows in agent_docs/testing.md
 
 ## AI Runtime

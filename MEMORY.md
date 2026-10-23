@@ -5,8 +5,8 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 ## Current State
 
 - Current task: Scaffold the Minimal Coding Agent (Teaching Edition) MVP
-- Current phase: agent-core + storage slices complete (ReAct loop + four tools + sandbox + Deepseek adapter + SQLite/JSONL persistence)
-- Next step: Desktop package (Electron main + React renderer + stdio child-process wiring + write-approval modal + safeStorage), then core MVP flow + launch checks
+- Current phase: Desktop slice complete (Electron main + preload + React renderer + stdio child-process wiring + write-approval modal + safeStorage). `pnpm typecheck` clean, `pnpm test` 53 passed + 1 skipped, `pnpm --filter @minimal-agent/desktop build` clean.
+- Next step: Core MVP flow (chat → tool call → result) exercised in the running Electron app, then launch checks. Content desensitization (P0 #4 gap) still deferred.
 - Blocked by: none
 
 ## Decisions
@@ -18,6 +18,9 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [2026-10-22] **Storage uses Node's built-in `node:sqlite` (`DatabaseSync`), not better-sqlite3.** better-sqlite3 v13 dropped prebuilt binaries and compiles from source, which needs Visual Studio C++ Build Tools (absent here). `node:sqlite` gives the same sync API (`prepare/get/all/run`, `@name` params) with zero native build. Note `db.pragma()` is replaced by `db.exec('PRAGMA …;')`.
 - [2026-10-22] `@types/node` bumped 20 → 24 and `engines` 20 → 24 to match the Node 24 runtime and provide `node:sqlite` types.
 - [2026-10-22] Vitest bumped 2.1.1 → 4.1.12. Vite 5's resolver strips the `node:` prefix for `node:sqlite` (a Node builtin newer than Vite 5) and fails with "Failed to load url sqlite". Vitest 4 requires Vite 6+, which recognizes `node:sqlite`.
+- [2026-10-23] Desktop stack pinned: electron 45.0.0, electron-vite 6.0.0, @vitejs/plugin-react 6.1.2 (peer vite ^8), react 18.3.1, vite 8.3.5. React 18 (not 19) to match docs. Plain CSS; Tailwind deferred.
+- [2026-10-23] Desktop preload is emitted as **CommonJS `.cjs`**, not ESM `.mjs`. Electron loads CJS preload synchronously (before the page runs), so `window.api` exists when React mounts; an ESM `.mjs` preload runs after page load and would race the renderer. Forced via `preload.build.rollupOptions.output.format: 'cjs'` + `entryFileNames: '[name].cjs'`; main references `../preload/index.cjs`.
+- [2026-10-23] Desktop dev agent spawn: `spawn('node', [require.resolve('tsx/cli'), require.resolve('@minimal-agent/agent-core/stdio-main')])`. `agent-core` is NOT bundled into main — it runs as a child process; main only `require.resolve`-s its path. Fine for dev; a packaged app would need the agent bundled.
 
 ## AI / Tooling Decisions
 
@@ -37,6 +40,6 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [x] Initial scaffold (pnpm monorepo + shared-types package)
 - [x] Agent core — ReAct loop + read_file/write_file/glob_files/search_code + sandbox + Deepseek adapter
 - [x] Storage (SessionRepository + MessageStore JSONL + ConfigStore, via node:sqlite)
-- [ ] Desktop (Electron main + React renderer)
+- [x] Desktop (Electron main + React renderer)
 - [ ] Core MVP flow (chat → tool call → result)
 - [ ] Launch checks

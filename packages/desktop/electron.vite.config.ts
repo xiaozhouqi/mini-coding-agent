@@ -28,5 +28,11 @@ export default defineConfig({
   },
   renderer: {
     plugins: [react()],
+    server: {
+      // Bind to IPv4 loopback explicitly. Node 24 resolves `localhost` to IPv6
+      // `::1` first, but Electron's Chromium connects over IPv4 `127.0.0.1`,
+      // which otherwise fails with ERR_CONNECTION_REFUSED on Windows.
+      host: '127.0.0.1',
+    },
   },
 });

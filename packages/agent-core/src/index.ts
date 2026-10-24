@@ -6,6 +6,7 @@ export type { DeepseekAdapterOptions } from './llm/DeepseekAdapter';
 export type { LLMAdapter, LLMRequestOptions } from './llm/LLMAdapter';
 export { ToolExecutor } from './tools/ToolExecutor';
 export { SecurityError, isSensitivePath, resolveSafePath, resolveSafeWritePath } from './tools/ToolSandbox';
+export { desensitize } from './security/desensitize';
 export { readFileTool } from './tools/implementations/readFile';
 export { writeFileTool } from './tools/implementations/writeFile';
 export { globFilesTool } from './tools/implementations/globFiles';

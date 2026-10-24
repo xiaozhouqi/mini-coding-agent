@@ -1,5 +1,6 @@
 import * as fs from 'node:fs/promises';
 import type { Tool, ToolContext, ToolResult } from '@minimal-agent/shared-types';
+import { desensitize } from '../../security/desensitize';
 import { isSensitivePath, resolveSafePath } from '../ToolSandbox';
 
 // TEACHING: A tool = definition (what the LLM sees) + execute (what it does).
@@ -28,7 +29,8 @@ export const readFileTool: Tool = {
         return { success: false, content: '', error: `Access denied: sensitive file blocked (${inputPath})` };
       }
       const content = await fs.readFile(realPath, 'utf-8');
-      return { success: true, content };
+      // Scrub credentials before the content reaches the LLM or the UI.
+      return { success: true, content: desensitize(content) };
     } catch (err) {
       // Return the failure as a ToolResult so the loop can feed it back to the
       // model rather than crashing.

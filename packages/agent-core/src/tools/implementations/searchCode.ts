@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import type { Tool, ToolContext, ToolResult } from '@minimal-agent/shared-types';
+import { desensitize } from '../../security/desensitize';
 import { isSensitivePath, resolveSafePath } from '../ToolSandbox';
 
 const MAX_MATCHES = 200;
@@ -62,7 +63,8 @@ export const searchCodeTool: Tool = {
         const lines = content.split('\n');
         for (let i = 0; i < lines.length; i++) {
           if (regex.test(lines[i])) {
-            results.push(`${path.relative(root, file)}:${i + 1}: ${lines[i].trim()}`);
+            // Mask secrets on the matched line before it reaches the LLM/UI.
+            results.push(`${path.relative(root, file)}:${i + 1}: ${desensitize(lines[i]).trim()}`);
             if (results.length >= MAX_MATCHES) break outer;
           }
         }

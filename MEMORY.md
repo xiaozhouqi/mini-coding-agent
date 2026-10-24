@@ -5,8 +5,8 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 ## Current State
 
 - Current task: Scaffold the Minimal Coding Agent (Teaching Edition) MVP
-- Current phase: Desktop slice complete (Electron main + preload + React renderer + stdio child-process wiring + write-approval modal + safeStorage). `pnpm typecheck` clean, `pnpm test` 53 passed + 1 skipped, `pnpm --filter @minimal-agent/desktop build` clean.
-- Next step: Core MVP flow (chat → tool call → result) exercised in the running Electron app, then launch checks. Content desensitization (P0 #4 gap) still deferred.
+- Current phase: Core MVP flow verified live (`pnpm smoke` runs chat → read_file tool-call → result). Content desensitization (P0 #4) now implemented in read_file + search_code. `pnpm typecheck` clean, `pnpm test` 59 passed + 1 skipped, `pnpm build` clean.
+- Next step: Launch checks — exercise the full user journey in the running Electron app (chat UI → tool call → approval modal → result), then final verification.
 - Blocked by: none
 
 ## Decisions
@@ -21,6 +21,7 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [2026-10-23] Desktop stack pinned: electron 45.0.0, electron-vite 6.0.0, @vitejs/plugin-react 6.1.2 (peer vite ^8), react 18.3.1, vite 8.3.5. React 18 (not 19) to match docs. Plain CSS; Tailwind deferred.
 - [2026-10-23] Desktop preload is emitted as **CommonJS `.cjs`**, not ESM `.mjs`. Electron loads CJS preload synchronously (before the page runs), so `window.api` exists when React mounts; an ESM `.mjs` preload runs after page load and would race the renderer. Forced via `preload.build.rollupOptions.output.format: 'cjs'` + `entryFileNames: '[name].cjs'`; main references `../preload/index.cjs`.
 - [2026-10-23] Desktop dev agent spawn: `spawn('node', [require.resolve('tsx/cli'), require.resolve('@minimal-agent/agent-core/stdio-main')])`. `agent-core` is NOT bundled into main — it runs as a child process; main only `require.resolve`-s its path. Fine for dev; a packaged app would need the agent bundled.
+- [2026-10-24] Content desensitization ("key masking") is a **deterministic regex layer in the tool boundary**, not a model decision: `security/desensitize.ts` masks bare `sk-…`, secret-field assignments (`api_key=`, `password:`, `token=`, …), and `Bearer` tokens before `read_file`/`search_code` results reach the LLM or UI. Verified live — the model echoes back `api_key=***` and never sees the raw value.
 
 ## AI / Tooling Decisions
 
@@ -41,5 +42,5 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [x] Agent core — ReAct loop + read_file/write_file/glob_files/search_code + sandbox + Deepseek adapter
 - [x] Storage (SessionRepository + MessageStore JSONL + ConfigStore, via node:sqlite)
 - [x] Desktop (Electron main + React renderer)
-- [ ] Core MVP flow (chat → tool call → result)
+- [x] Core MVP flow (chat → tool call → result) + content desensitization
 - [ ] Launch checks

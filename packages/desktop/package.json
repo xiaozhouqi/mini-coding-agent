@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "preview": "electron-vite preview"
+    "preview": "electron-vite preview",
+    "launch-check": "node scripts/launch-check.mjs",
+    "launch-check:live": "node scripts/launch-check-live.mjs"
   },
   "dependencies": {
     "@minimal-agent/agent-core": "workspace:*",

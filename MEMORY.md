@@ -5,8 +5,8 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 ## Current State
 
 - Current task: Scaffold the Minimal Coding Agent (Teaching Edition) MVP
-- Current phase: Core MVP flow verified live (`pnpm smoke` runs chat → read_file tool-call → result). Content desensitization (P0 #4) now implemented in read_file + search_code. `pnpm typecheck` clean, `pnpm test` 59 passed + 1 skipped, `pnpm build` clean.
-- Next step: Launch checks — exercise the full user journey in the running Electron app (chat UI → tool call → approval modal → result), then final verification.
+- Current phase: MVP complete — all 5 P0 features shipped and verified. `pnpm test` 59 passed + 1 skipped, `pnpm typecheck` clean, `pnpm build` clean, `pnpm --filter @minimal-agent/desktop build` clean. Launch checks pass: app boots headlessly with the preload/IPC bridge intact and drives a real chat → read_file tool-call → result turn end-to-end.
+- Next step: none (v0.1 MVP). Optional follow-ups under Known Issues.
 - Blocked by: none
 
 ## Decisions
@@ -22,6 +22,7 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [2026-10-23] Desktop preload is emitted as **CommonJS `.cjs`**, not ESM `.mjs`. Electron loads CJS preload synchronously (before the page runs), so `window.api` exists when React mounts; an ESM `.mjs` preload runs after page load and would race the renderer. Forced via `preload.build.rollupOptions.output.format: 'cjs'` + `entryFileNames: '[name].cjs'`; main references `../preload/index.cjs`.
 - [2026-10-23] Desktop dev agent spawn: `spawn('node', [require.resolve('tsx/cli'), require.resolve('@minimal-agent/agent-core/stdio-main')])`. `agent-core` is NOT bundled into main — it runs as a child process; main only `require.resolve`-s its path. Fine for dev; a packaged app would need the agent bundled.
 - [2026-10-24] Content desensitization ("key masking") is a **deterministic regex layer in the tool boundary**, not a model decision: `security/desensitize.ts` masks bare `sk-…`, secret-field assignments (`api_key=`, `password:`, `token=`, …), and `Bearer` tokens before `read_file`/`search_code` results reach the LLM or UI. Verified live — the model echoes back `api_key=***` and never sees the raw value.
+- [2026-10-24] Launch checks are automated as `packages/desktop/scripts/launch-check.mjs` (boots the built app headlessly over CDP, asserts `window.api` + React mount + zero console errors) and `launch-check-live.mjs` (opt-in: reads `.env`, drives a real `chat → tool-call → result` turn through the renderer bridge; makes a real Deepseek call). Run after `pnpm --filter @minimal-agent/desktop build`.
 
 ## AI / Tooling Decisions
 
@@ -35,6 +36,7 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - `research-minimal-coding-agent.md` is empty; PRD references `docs/research-minimal-coding-agent.md`. Research findings not yet written.
 - Symlink-escape test is skipped on this Windows machine (symlink creation needs Developer Mode/admin). The `resolveSafePath` protection is implemented; the test runs on macOS/Linux or Windows with Developer Mode.
 - `node:sqlite` emits `ExperimentalWarning: SQLite is an experimental feature` at test runtime (harmless, on stderr).
+- Electron 45 deprecates the **sync** `safeStorage` API (`isEncryptionAvailable` / `encryptString` / `decryptString`) in favor of async variants. The sync API still works (key storage + decrypt verified in the live launch check), but switching to `*Async` would need `safeStorage.ts`/`config.ts`/main-startup to become async. Forward-compat cleanup, not a current bug.
 
 ## Completed
 
@@ -43,4 +45,4 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [x] Storage (SessionRepository + MessageStore JSONL + ConfigStore, via node:sqlite)
 - [x] Desktop (Electron main + React renderer)
 - [x] Core MVP flow (chat → tool call → result) + content desensitization
-- [ ] Launch checks
+- [x] Launch checks

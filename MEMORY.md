@@ -6,6 +6,7 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 
 - Current task: Scaffold the Minimal Coding Agent (Teaching Edition) MVP
 - Current phase: MVP complete — all 5 P0 features shipped and verified. `pnpm test` 59 passed + 1 skipped, `pnpm typecheck` clean, `pnpm build` clean, `pnpm --filter @minimal-agent/desktop build` clean. Launch checks pass: app boots headlessly with the preload/IPC bridge intact and drives a real chat → read_file tool-call → result turn end-to-end.
+- Release: v0.1.0 published on GitHub (annotated tag + Release + closed milestone "v0.1.0 MVP"); repo is public, MIT licensed.
 - Next step: none (v0.1 MVP). Optional follow-ups under Known Issues.
 - Blocked by: none
 

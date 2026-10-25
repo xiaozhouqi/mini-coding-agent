@@ -4,12 +4,13 @@
 
 ## 当前状态
 
-MVP 开发中（v0.1）：
+MVP 已完成（v0.1.0）：
 
 - ✅ 代理核心（`agent-core`）：ReAct 循环、`read_file`/`write_file`/`glob_files`/`search_code`、路径沙箱、Deepseek LLM 适配器（含流式 SSE 解析）
 - ✅ 持久化（`storage`）：SQLite（`node:sqlite`）+ JSONL 会话持久化
 - ✅ 桌面端（`desktop`）：Electron 主进程 + preload 桥 + React 渲染进程、stdio 子进程接线、`write_file` 审批弹窗、`safeStorage` 密钥存储
-- ⏳ 待实现：核心 MVP 端到端流程验证与上线检查
+- ✅ 内容脱敏：`read_file`/`search_code` 结果在到达 LLM 前对密钥做掩码处理
+- ✅ 端到端流程与上线检查：chat → tool call → result 全链路验证通过
 
 ## 技术栈
 
@@ -50,6 +51,9 @@ pnpm typecheck
 
 # 运行单元测试
 pnpm test
+
+# 启动桌面应用（Electron 开发模式，会弹出窗口）
+pnpm dev
 ```
 
 ## 配置 Deepseek API Key
@@ -78,4 +82,9 @@ pnpm smoke <工作目录> deepseek-v4-pro "读取某个文件的内容"
 
 - 产品需求：`docs/PRD-Minimal-Coding-Agent-MVP.md`
 - 技术设计：`docs/technical-Minimal-Coding-Agent-MVP.md`
+- 产品规划（路线图）：`agent_docs/roadmap.md`
 - 开发约定：`agent_docs/`
+
+## License
+
+[MIT](LICENSE)

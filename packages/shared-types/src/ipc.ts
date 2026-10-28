@@ -1,6 +1,6 @@
 import type { AgentConfig } from './config';
 import type { ChatMessage } from './llm';
-import type { ToolCall, ToolResult, WriteApprovalRequest } from './tool';
+import type { ApprovalRequest, ToolCall, ToolResult } from './tool';
 
 // TEACHING: Cross-process contracts. The desktop app has TWO boundaries that
 // both need a shared vocabulary:
@@ -31,9 +31,9 @@ export const IpcChannels = {
   agentToolResult: 'agent:tool-result',
   agentDone: 'agent:done',
   agentError: 'agent:error',
-  // Write approval dialog.
-  writeConfirm: 'dialog:write-confirm',
-  writeResult: 'dialog:write-result',
+  // Unified approval dialog (write + command).
+  approvalRequest: 'dialog:approval-request',
+  approvalResult: 'dialog:approval-result',
   // Native directory picker.
   workspacePick: 'dialog:workspace-pick',
 } as const;
@@ -52,17 +52,18 @@ export type IpcChannel = (typeof IpcChannels)[keyof typeof IpcChannels];
 export type InputFrame =
   | { type: 'init'; config: AgentConfig; workspace: string; history?: ChatMessage[] }
   | { type: 'user-message'; content: string }
-  | { type: 'write-approval'; approved: boolean; reason?: string };
+  | { type: 'approval-result'; approved: boolean; reason?: string };
 
 /**
- * Frames the agent writes to its stdout. `write-confirm` is emitted when a
- * write_file tool pauses for approval (it carries the `exists` flag the tool
- * already computed, so the main process does not have to re-derive it).
+ * Frames the agent writes to its stdout. `approval-request` is emitted when a
+ * write_file or run_command tool pauses for approval (it carries the
+ * discriminated `ApprovalRequest` so the main process can route it to the right
+ * dialog).
  */
 export type OutputFrame =
   | { type: 'text-delta'; delta: string }
   | { type: 'tool-call'; toolCall: ToolCall }
-  | { type: 'write-confirm'; request: WriteApprovalRequest }
+  | { type: 'approval-request'; request: ApprovalRequest }
   | { type: 'tool-result'; toolResult: ToolResult }
   | { type: 'done'; tokenUsage?: number }
   | { type: 'error'; message: string };

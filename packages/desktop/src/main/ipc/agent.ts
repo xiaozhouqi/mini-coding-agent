@@ -60,8 +60,8 @@ export class AgentProcessManager {
     this.send({ type: 'user-message', content });
   }
 
-  resolveWriteConfirm(approved: boolean): void {
-    this.send({ type: 'write-approval', approved });
+  resolveApproval(approved: boolean): void {
+    this.send({ type: 'approval-result', approved });
   }
 
   stop(): void {
@@ -111,8 +111,8 @@ export function registerAgentHandlers(deps: AgentHandlerDeps): void {
     return true;
   });
 
-  ipcMain.handle(IpcChannels.writeResult, (_event, approved: boolean) => {
-    deps.manager.resolveWriteConfirm(approved);
+  ipcMain.handle(IpcChannels.approvalResult, (_event, approved: boolean) => {
+    deps.manager.resolveApproval(approved);
     return true;
   });
 }

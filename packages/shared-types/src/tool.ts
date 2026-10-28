@@ -22,9 +22,25 @@ export interface WriteApprovalRequest {
   exists: boolean;
 }
 
+export interface CommandApprovalRequest {
+  command: string;
+  reason: string;
+}
+
+// TEACHING: One human-in-the-loop gate for every kind of approval. The
+// transport layer carries this discriminated union; each tool exposes its own
+// typed callback (approveWrite / approveCommand) but they funnel through the
+// same approve/reject round trip.
+export type ApprovalRequest =
+  | { kind: 'write'; request: WriteApprovalRequest }
+  | { kind: 'command'; request: CommandApprovalRequest };
+
 export interface ToolContext {
   workspaceRoot: string;
   approveWrite?: (request: WriteApprovalRequest) => Promise<boolean>;
+  approveCommand?: (request: CommandApprovalRequest) => Promise<boolean>;
+  /** Override for the run_command timeout; defaults inside the tool. Test/extension hook. */
+  commandTimeoutMs?: number;
 }
 
 export interface Tool {

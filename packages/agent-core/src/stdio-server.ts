@@ -1,7 +1,9 @@
 import { createInterface } from 'node:readline';
 import type {
   AgentConfig,
+  ApprovalRequest,
   ChatMessage,
+  CommandApprovalRequest,
   InputFrame,
   OutputFrame,
   ToolCall,
@@ -41,6 +43,7 @@ export interface LoopLike {
     workspaceRoot: string,
     history: ChatMessage[],
     approveWrite?: (request: WriteApprovalRequest) => Promise<boolean>,
+    approveCommand?: (request: CommandApprovalRequest) => Promise<boolean>,
   ): AsyncGenerator<AgentStreamEvent>;
   readonly totalTokens?: number;
 }
@@ -60,7 +63,7 @@ export class StdioAgentServer {
 
   constructor(private readonly options: StdioServerOptions) {}
 
-  /** Handle one input frame. `write-approval` resolves a pending write pause. */
+  /** Handle one input frame. `approval-result` resolves a pending approval pause. */
   async handle(frame: InputFrame): Promise<void> {
     switch (frame.type) {
       case 'init':
@@ -69,7 +72,7 @@ export class StdioAgentServer {
       case 'user-message':
         await this.handleUserMessage(frame.content);
         break;
-      case 'write-approval':
+      case 'approval-result':
         this.resolveApproval(frame.approved);
         break;
     }
@@ -96,8 +99,12 @@ export class StdioAgentServer {
     this.running = true;
     const events: AgentStreamEvent[] = [];
     try {
-      for await (const event of this.loop.run(content, this.workspace, this.history, (req) =>
-        this.approveWrite(req),
+      for await (const event of this.loop.run(
+        content,
+        this.workspace,
+        this.history,
+        (req) => this.approveWrite(req),
+        (req) => this.approveCommand(req),
       )) {
         events.push(event);
         this.emit(event);
@@ -129,15 +136,24 @@ export class StdioAgentServer {
     }
   }
 
-  // TEACHING: The human-in-the-loop boundary. When the write_file tool calls
-  // approveWrite, we emit a `write-confirm` frame and park the promise until a
-  // `write-approval` frame arrives. The loop stays paused while the user decides.
+  // TEACHING: The human-in-the-loop boundary. When a tool calls approveWrite /
+  // approveCommand, we emit an `approval-request` frame and park the promise
+  // until an `approval-result` frame arrives. The loop stays paused while the
+  // user decides. A single slot suffices — the loop runs tools one at a time.
   private approveWrite(request: WriteApprovalRequest): Promise<boolean> {
-    // Register the resolver BEFORE emitting the confirm frame so a parent that
-    // replies synchronously (as in tests) can't race ahead of it.
+    return this.requestApproval({ kind: 'write', request });
+  }
+
+  private approveCommand(request: CommandApprovalRequest): Promise<boolean> {
+    return this.requestApproval({ kind: 'command', request });
+  }
+
+  private requestApproval(request: ApprovalRequest): Promise<boolean> {
+    // Register the resolver BEFORE emitting the frame so a parent that replies
+    // synchronously (as in tests) can't race ahead of it.
     return new Promise<boolean>((resolve) => {
       this.pendingApproval = resolve;
-      this.options.write({ type: 'write-confirm', request });
+      this.options.write({ type: 'approval-request', request });
     });
   }
 

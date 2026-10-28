@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { Message, ToolCall, ToolResult, WriteApprovalRequest } from '@minimal-agent/shared-types';
+import type { Message, ApprovalRequest, ToolCall, ToolResult } from '@minimal-agent/shared-types';
 
 // TEACHING: Client-side agent bridge. It sends user messages through the
 // preload API, subscribes to the pushed stream (text / tool calls / results /
-// write approvals), and turns those events into `Message` objects for display
+// approvals), and turns those events into `Message` objects for display
 // and persistence. The streamed assistant text is accumulated into one bubble
 // that updates in place.
 
 interface UseAgentArgs {
   sessionId: string | null;
   setMessages: Dispatch<SetStateAction<Message[]>>;
-  setWriteRequest: (request: WriteApprovalRequest | null) => void;
+  setApprovalRequest: (request: ApprovalRequest | null) => void;
 }
 
-export function useAgent({ sessionId, setMessages, setWriteRequest }: UseAgentArgs) {
+export function useAgent({ sessionId, setMessages, setApprovalRequest }: UseAgentArgs) {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -119,11 +119,11 @@ export function useAgent({ sessionId, setMessages, setWriteRequest }: UseAgentAr
         setStreaming(false);
       }),
 
-      window.api.onWriteConfirm((request) => setWriteRequest(request)),
+      window.api.onApprovalRequest((request) => setApprovalRequest(request)),
     ];
 
     return () => unsubs.forEach((unsub) => unsub());
-  }, [sessionId, setMessages, setWriteRequest, enqueuePersist]);
+  }, [sessionId, setMessages, setApprovalRequest, enqueuePersist]);
 
   return { streaming, error, send, clearError: () => setError(null) };
 }

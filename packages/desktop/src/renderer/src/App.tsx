@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Message, WriteApprovalRequest } from '@minimal-agent/shared-types';
+import type { Message, ApprovalRequest } from '@minimal-agent/shared-types';
 import { useAgent } from './hooks/useAgent';
 import { useSession } from './hooks/useSession';
 import { Sidebar } from './components/Sidebar';
@@ -8,16 +8,16 @@ import { SettingsPanel } from './components/SettingsPanel';
 
 // TEACHING: App wires the two hooks together with the UI. State flow:
 // useSession owns which session is open; useAgent turns user sends into
-// streamed messages; the write-approval modal is the human-in-the-loop gate for
-// file writes (the agent child process blocks until we resolve it).
+// streamed messages; the approval modal is the human-in-the-loop gate for file
+// writes and commands (the agent child process blocks until we resolve it).
 export function App() {
   const { sessions, currentId, refresh, create, open, remove } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [writeRequest, setWriteRequest] = useState<WriteApprovalRequest | null>(null);
+  const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [workspace, setWorkspace] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const { streaming, error, send } = useAgent({ sessionId: currentId, setMessages, setWriteRequest });
+  const { streaming, error, send } = useAgent({ sessionId: currentId, setMessages, setApprovalRequest });
 
   // Keep the displayed workspace in sync with the open session.
   useEffect(() => {
@@ -42,9 +42,9 @@ export function App() {
     if (id === currentId) setMessages([]);
   };
 
-  const handleWriteResponse = (approved: boolean) => {
-    void window.api.resolveWrite(approved);
-    setWriteRequest(null);
+  const handleApprovalResponse = (approved: boolean) => {
+    void window.api.resolveApproval(approved);
+    setApprovalRequest(null);
   };
 
   return (
@@ -64,7 +64,7 @@ export function App() {
         disabled={!currentId}
         onSend={(content) => void send(content)}
       />
-      {writeRequest && <WriteApprovalModal request={writeRequest} onRespond={handleWriteResponse} />}
+      {approvalRequest && <ApprovalModal request={approvalRequest} onRespond={handleApprovalResponse} />}
       {settingsOpen && (
         <SettingsPanel
           workspace={workspace}
@@ -78,23 +78,37 @@ export function App() {
 }
 
 // Human-in-the-loop approval. The agent child process has already emitted the
-// request and is blocked; approving/denying here resolves that promise.
-function WriteApprovalModal({
+// request and is blocked; approving/denying here resolves that promise. The
+// modal switches on the request kind: file write or shell command.
+function ApprovalModal({
   request,
   onRespond,
 }: {
-  request: WriteApprovalRequest;
+  request: ApprovalRequest;
   onRespond: (approved: boolean) => void;
 }) {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>Approve file write?</h2>
-        <p>
-          The agent wants to write <code>{request.path}</code>
-          {request.exists ? ' (this will overwrite an existing file)' : ''}.
-        </p>
-        <pre className="modal-content">{request.content}</pre>
+        {request.kind === 'write' ? (
+          <>
+            <h2>Approve file write?</h2>
+            <p>
+              The agent wants to write <code>{request.request.path}</code>
+              {request.request.exists ? ' (this will overwrite an existing file)' : ''}.
+            </p>
+            <pre className="modal-content">{request.request.content}</pre>
+          </>
+        ) : (
+          <>
+            <h2>Approve command?</h2>
+            <p>
+              The agent wants to run this command
+              {request.request.reason ? ` (flagged: ${request.request.reason})` : ''}.
+            </p>
+            <pre className="modal-content">{request.request.command}</pre>
+          </>
+        )}
         <div className="modal-actions">
           <button className="btn btn-danger" onClick={() => onRespond(false)}>Deny</button>
           <button className="btn btn-primary" onClick={() => onRespond(true)}>Approve</button>

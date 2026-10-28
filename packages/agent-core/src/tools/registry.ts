@@ -1,6 +1,7 @@
 import { ToolExecutor } from './ToolExecutor';
 import { globFilesTool } from './implementations/globFiles';
 import { readFileTool } from './implementations/readFile';
+import { runCommandTool } from './implementations/runCommand';
 import { searchCodeTool } from './implementations/searchCode';
 import { writeFileTool } from './implementations/writeFile';
 
@@ -11,5 +12,6 @@ export function createToolExecutor(): ToolExecutor {
   executor.register(writeFileTool);
   executor.register(globFilesTool);
   executor.register(searchCodeTool);
+  executor.register(runCommandTool);
   return executor;
 }

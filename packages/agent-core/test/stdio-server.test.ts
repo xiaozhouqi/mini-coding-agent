@@ -98,8 +98,8 @@ describe('StdioAgentServer', () => {
     const server = new StdioAgentServer({
       write: (frame) => {
         frames.push(frame);
-        if (frame.type === 'write-confirm') {
-          void server.handle({ type: 'write-approval', approved: true });
+        if (frame.type === 'approval-request') {
+          void server.handle({ type: 'approval-result', approved: true });
         }
       },
       createLoop: () => makeApprovingLoop(),
@@ -108,7 +108,7 @@ describe('StdioAgentServer', () => {
     await server.handle({ type: 'init', config: CONFIG, workspace: '/ws' });
     await server.handle({ type: 'user-message', content: 'write a.txt' });
 
-    expect(frames.map((f) => f.type)).toEqual(['text-delta', 'tool-call', 'write-confirm', 'tool-result', 'done']);
+    expect(frames.map((f) => f.type)).toEqual(['text-delta', 'tool-call', 'approval-request', 'tool-result', 'done']);
     const result = frames.find((f) => f.type === 'tool-result');
     expect(result?.type === 'tool-result' && result.toolResult.success).toBe(true);
     const done = frames.find((f) => f.type === 'done');
@@ -120,8 +120,8 @@ describe('StdioAgentServer', () => {
     const server = new StdioAgentServer({
       write: (frame) => {
         frames.push(frame);
-        if (frame.type === 'write-confirm') {
-          void server.handle({ type: 'write-approval', approved: false, reason: 'no' });
+        if (frame.type === 'approval-request') {
+          void server.handle({ type: 'approval-result', approved: false, reason: 'no' });
         }
       },
       createLoop: () => makeApprovingLoop(),

@@ -106,7 +106,7 @@ async function main() {
     window.api.onAgentToolResult(tr => window.__agentEvents.push({t:'tool-result', tr}));
     window.api.onAgentDone(u => window.__agentEvents.push({t:'done', usage:u}));
     window.api.onAgentError(m => window.__agentEvents.push({t:'error', m}));
-    window.api.onWriteConfirm(r => window.__agentEvents.push({t:'write-confirm', r}));
+    window.api.onApprovalRequest(r => window.__agentEvents.push({t:'approval-request', r}));
   })()`);
 
   // 4. Send the user message.

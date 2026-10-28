@@ -1,4 +1,4 @@
-import type { ChatMessage, ToolCall, ToolResult, WriteApprovalRequest } from '@minimal-agent/shared-types';
+import type { ChatMessage, CommandApprovalRequest, ToolCall, ToolResult, WriteApprovalRequest } from '@minimal-agent/shared-types';
 import type { LLMAdapter } from '../llm/LLMAdapter';
 import type { ToolExecutor } from '../tools/ToolExecutor';
 import { PromptManager } from './PromptManager';
@@ -35,6 +35,7 @@ export class AgentLoop {
     workspaceRoot: string,
     history: ChatMessage[] = [],
     approveWrite?: (request: WriteApprovalRequest) => Promise<boolean>,
+    approveCommand?: (request: CommandApprovalRequest) => Promise<boolean>,
   ): AsyncGenerator<AgentStreamEvent> {
     // TEACHING: The ReAct loop — Thought -> Action (tool call) -> Observation
     // (tool result) -> Thought -> ... until the model stops calling tools.
@@ -74,7 +75,7 @@ export class AgentLoop {
 
       for (const call of toolCalls) {
         yield { type: 'tool-call', toolCall: call };
-        const result = await this.tools.execute(call, { workspaceRoot, approveWrite });
+        const result = await this.tools.execute(call, { workspaceRoot, approveWrite, approveCommand });
         yield { type: 'tool-result', toolResult: result };
         // TEACHING: The observation is fed back as a tool message. Errors are
         // included (not swallowed) so the model can self-correct.

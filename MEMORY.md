@@ -4,10 +4,10 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 
 ## Current State
 
-- Current task: Scaffold the Minimal Coding Agent (Teaching Edition) MVP
-- Current phase: MVP complete — all 5 P0 features shipped and verified. `pnpm test` 59 passed + 1 skipped, `pnpm typecheck` clean, `pnpm build` clean, `pnpm --filter @minimal-agent/desktop build` clean. Launch checks pass: app boots headlessly with the preload/IPC bridge intact and drives a real chat → read_file tool-call → result turn end-to-end.
+- Current task: Phase 1 (terminal execution + feedback loop) from `agent_docs/roadmap.md`
+- Current phase: Phase 1 complete — `run_command` tool shipped and verified. `pnpm test` 73 passed + 1 skipped, `pnpm typecheck` clean, `pnpm --filter @minimal-agent/desktop build` clean, headless launch check passes (preload now exposes `onApprovalRequest`/`resolveApproval`).
 - Release: v0.1.0 published on GitHub (annotated tag + Release + closed milestone "v0.1.0 MVP"); repo is public, MIT licensed.
-- Next step: none (v0.1 MVP). Optional follow-ups under Known Issues.
+- Next step: Phase 2 (precise `edit_file` + unified diff + git integration) per `agent_docs/roadmap.md`.
 - Blocked by: none
 
 ## Decisions
@@ -24,6 +24,8 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [2026-10-23] Desktop dev agent spawn: `spawn('node', [require.resolve('tsx/cli'), require.resolve('@minimal-agent/agent-core/stdio-main')])`. `agent-core` is NOT bundled into main — it runs as a child process; main only `require.resolve`-s its path. Fine for dev; a packaged app would need the agent bundled.
 - [2026-10-24] Content desensitization ("key masking") is a **deterministic regex layer in the tool boundary**, not a model decision: `security/desensitize.ts` masks bare `sk-…`, secret-field assignments (`api_key=`, `password:`, `token=`, …), and `Bearer` tokens before `read_file`/`search_code` results reach the LLM or UI. Verified live — the model echoes back `api_key=***` and never sees the raw value.
 - [2026-10-24] Launch checks are automated as `packages/desktop/scripts/launch-check.mjs` (boots the built app headlessly over CDP, asserts `window.api` + React mount + zero console errors) and `launch-check-live.mjs` (opt-in: reads `.env`, drives a real `chat → tool-call → result` turn through the renderer bridge; makes a real Deepseek call). Run after `pnpm --filter @minimal-agent/desktop build`.
+- [2026-10-28] **Phase 1 (terminal execution) shipped: `run_command` tool.** Three-tier deterministic classification in `tools/CommandSandbox.ts` (`safe` / `approve` / `blocked`); `safe` runs directly, `approve` (destructive + network) pauses for user approval, `blocked` (system power/format/fork bomb/root delete/interactive) never runs. Network commands (`curl`, `npm install`, `git clone/pull/push`, …) are approval-gated to honor "no external network except the LLM API". A non-zero exit code is an *observation* (`success:true` + `[exit code N]` prefix), not a tool error, so the model can self-correct. Output is truncated (head+tail) and `desensitize()`d before reaching the model. Execution uses `spawn(cmd, { shell: true })` with `cwd` = resolved workspace root, a 60s timeout with best-effort `taskkill /t` tree kill on Windows, and `stdio: ['ignore','pipe','pipe']` (stdin ignored so interactive prompts read EOF).
+- [2026-10-28] **Approval channel unified.** The old `write-confirm`/`write-approval` stdio frames and `writeConfirm`/`writeResult` IPC channels became one `approval-request`/`approval-result` pair carrying a discriminated `ApprovalRequest` (`{ kind: 'write' } | { kind: 'command' }`). `stdio-server` keeps a single `pendingApproval` slot (the loop runs one tool at a time). This is the foundation for Phase 7 (hooks / configurable permissions). Renamed the preload API `resolveWrite`→`resolveApproval`, `onWriteConfirm`→`onApprovalRequest`.
 
 ## AI / Tooling Decisions
 
@@ -47,3 +49,4 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [x] Desktop (Electron main + React renderer)
 - [x] Core MVP flow (chat → tool call → result) + content desensitization
 - [x] Launch checks
+- [x] Phase 1: `run_command` (terminal execution + feedback loop) with deterministic command sandbox + unified approval channel

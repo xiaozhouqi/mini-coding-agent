@@ -1,6 +1,6 @@
 import type { Message } from './message';
 import type { SessionMetadata } from './session';
-import type { ToolCall, ToolResult, WriteApprovalRequest } from './tool';
+import type { ApprovalRequest, ToolCall, ToolResult } from './tool';
 
 // TEACHING: The preload bridge. This is the *only* thing the sandboxed
 // renderer can call — a small, typed surface instead of raw ipcRenderer. The
@@ -30,7 +30,7 @@ export interface DesktopApi {
   workspacePick(): Promise<string | null>;
 
   agentSend(sessionId: string, content: string): Promise<boolean>;
-  resolveWrite(approved: boolean): Promise<boolean>;
+  resolveApproval(approved: boolean): Promise<boolean>;
 
   // Push subscriptions; each returns an unsubscribe function.
   onAgentStream(cb: (text: string) => void): () => void;
@@ -38,5 +38,5 @@ export interface DesktopApi {
   onAgentToolResult(cb: (result: ToolResult) => void): () => void;
   onAgentDone(cb: (tokenUsage?: number) => void): () => void;
   onAgentError(cb: (message: string) => void): () => void;
-  onWriteConfirm(cb: (request: WriteApprovalRequest) => void): () => void;
+  onApprovalRequest(cb: (request: ApprovalRequest) => void): () => void;
 }

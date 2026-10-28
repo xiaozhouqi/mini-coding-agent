@@ -51,8 +51,8 @@ The product *is* an AI agent.
 
 - **Model can see:** user messages + workspace file contents read by tools (after desensitization).
 - **Never send:** the raw API key, secrets/tokens, `.env`/`.pem`/key material (blocked by blacklist), private logs.
-- **AI can do:** read files in the workspace, list/search files, propose writes (pending approval). Forbidden: directory traversal, sensitive-file reads, any external network except the LLM API, terminal commands.
-- **Needs approval:** every `write_file` (per-write user confirmation).
+- **AI can do:** read files in the workspace, list/search files, propose writes (pending approval), and run shell commands in the workspace (safe commands run directly; destructive/network commands are approval-gated). Forbidden: directory traversal, sensitive-file reads, any external network except the LLM API (command-driven network access is approval-gated, not silently allowed), and commands classified as blocked (system power, disk format, fork bombs, root deletes, interactive programs).
+- **Needs approval:** every `write_file` (per-write user confirmation) and every `run_command` classified as destructive or network.
 - **How to verify behavior:** see `agent_docs/testing.md` security cases (traversal, symlink, `.env` block, masking).
 - **Fallback:** on API failure show an error and allow retry; the app must not crash.
 

@@ -101,4 +101,30 @@ describe('AgentLoop', () => {
     expect(events.find((e) => e.type === 'tool-result')?.toolResult?.success).toBe(true);
     expect(fs.readFileSync(path.join(ws, 'out.txt'), 'utf-8')).toBe('written');
   });
+
+  it('runs run_command through approval and observes the result', async () => {
+    const ws = makeWorkspace();
+    const approvedCommands: string[] = [];
+
+    let turn = 0;
+    const llm = new FakeLLMAdapter(() => {
+      turn += 1;
+      if (turn === 1) {
+        return [{ toolCalls: [{ id: 'call_1', name: 'run_command', arguments: { command: 'rm -rf no-such-dir' } }] }];
+      }
+      return [{ textDelta: 'Done.' }];
+    });
+
+    const loop = new AgentLoop(llm, createToolExecutor(), new PromptManager());
+    const events: AgentStreamEvent[] = [];
+    for await (const e of loop.run('clean up', ws, [], undefined, async (req) => {
+      approvedCommands.push(req.command);
+      return true;
+    })) {
+      events.push(e);
+    }
+
+    expect(approvedCommands).toEqual(['rm -rf no-such-dir']);
+    expect(events.find((e) => e.type === 'tool-result')?.toolResult?.success).toBe(true);
+  });
 });

@@ -93,8 +93,8 @@ function forwardFrame(frame: OutputFrame): void {
     case 'error':
       wc.send(IpcChannels.agentError, frame.message);
       break;
-    case 'write-confirm':
-      wc.send(IpcChannels.writeConfirm, frame.request);
+    case 'approval-request':
+      wc.send(IpcChannels.approvalRequest, frame.request);
       break;
   }
 }

@@ -26,14 +26,14 @@ const api: DesktopApi = {
   workspacePick: () => ipcRenderer.invoke(IpcChannels.workspacePick),
 
   agentSend: (sessionId, content) => ipcRenderer.invoke(IpcChannels.agentSend, sessionId, content),
-  resolveWrite: (approved) => ipcRenderer.invoke(IpcChannels.writeResult, approved),
+  resolveApproval: (approved) => ipcRenderer.invoke(IpcChannels.approvalResult, approved),
 
   onAgentStream: (cb) => subscribe(IpcChannels.agentStream, cb),
   onAgentToolCall: (cb) => subscribe(IpcChannels.agentToolCall, cb),
   onAgentToolResult: (cb) => subscribe(IpcChannels.agentToolResult, cb),
   onAgentDone: (cb) => subscribe(IpcChannels.agentDone, cb),
   onAgentError: (cb) => subscribe(IpcChannels.agentError, cb),
-  onWriteConfirm: (cb) => subscribe(IpcChannels.writeConfirm, cb),
+  onApprovalRequest: (cb) => subscribe(IpcChannels.approvalRequest, cb),
 };
 
 contextBridge.exposeInMainWorld('api', api);

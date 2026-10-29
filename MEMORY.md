@@ -7,7 +7,7 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - Current task: Phase 1 (terminal execution + feedback loop) from `agent_docs/roadmap.md`
 - Current phase: Phase 1 complete — `run_command` tool shipped and verified. `pnpm test` 73 passed + 1 skipped, `pnpm typecheck` clean, `pnpm --filter @minimal-agent/desktop build` clean, headless launch check passes (preload now exposes `onApprovalRequest`/`resolveApproval`).
 - Release: v0.1.0 published on GitHub (annotated tag + Release + closed milestone "v0.1.0 MVP"); repo is public, MIT licensed.
-- Next step: Phase 2 (precise `edit_file` + unified diff + git integration) per `agent_docs/roadmap.md`.
+- Next step: memory P2 (long-term memory store + injection) per `agent_docs/memory-roadmap.md` (current thread); roadmap Phase 2 (`edit_file` + git) remains queued.
 - Blocked by: none
 
 ## Decisions
@@ -51,3 +51,4 @@ Shared project handoff. Update after major decisions, completed phases, or bugs 
 - [x] Core MVP flow (chat → tool call → result) + content desensitization
 - [x] Launch checks
 - [x] Phase 1: `run_command` (terminal execution + feedback loop) with deterministic command sandbox + unified approval channel
+- [x] Memory P1: project instruction injection — `readProjectInstructions` reads `AGENTS.md` (→ `CLAUDE.md`), `PromptManager` injects it after the base prompt; wired in `stdio-server` + `cli`. 80 tests pass; live smoke confirms the model answers from the injected instruction.

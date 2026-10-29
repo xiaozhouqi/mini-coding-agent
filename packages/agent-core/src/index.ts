@@ -1,6 +1,7 @@
 export { AgentLoop } from './agent/AgentLoop';
 export type { AgentLoopOptions, AgentStreamEvent } from './agent/AgentLoop';
 export { PromptManager } from './agent/PromptManager';
+export { readProjectInstructions } from './agent/projectInstructions';
 export { DeepseekAdapter } from './llm/DeepseekAdapter';
 export type { DeepseekAdapterOptions } from './llm/DeepseekAdapter';
 export type { LLMAdapter, LLMRequestOptions } from './llm/LLMAdapter';

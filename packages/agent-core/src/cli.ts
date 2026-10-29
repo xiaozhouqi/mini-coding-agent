@@ -4,6 +4,7 @@ import * as readline from 'node:readline/promises';
 import type { WriteApprovalRequest } from '@minimal-agent/shared-types';
 import { AgentLoop } from './agent/AgentLoop';
 import { PromptManager } from './agent/PromptManager';
+import { readProjectInstructions } from './agent/projectInstructions';
 import { DeepseekAdapter } from './llm/DeepseekAdapter';
 import { createToolExecutor } from './tools/registry';
 
@@ -30,7 +31,7 @@ async function main(): Promise<void> {
   }
 
   const llm = new DeepseekAdapter({ apiKey, model: model ?? 'deepseek-v4-pro' });
-  const loop = new AgentLoop(llm, createToolExecutor(), new PromptManager());
+  const loop = new AgentLoop(llm, createToolExecutor(), new PromptManager(undefined, readProjectInstructions(workspace)));
 
   // Terminal approval for write_file — prompt the user before writing.
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

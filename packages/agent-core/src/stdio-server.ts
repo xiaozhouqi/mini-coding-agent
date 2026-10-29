@@ -13,6 +13,7 @@ import type {
 import { AgentLoop } from './agent/AgentLoop';
 import type { AgentStreamEvent } from './agent/AgentLoop';
 import { PromptManager } from './agent/PromptManager';
+import { readProjectInstructions } from './agent/projectInstructions';
 import { DeepseekAdapter } from './llm/DeepseekAdapter';
 import { createToolExecutor } from './tools/registry';
 
@@ -79,9 +80,12 @@ export class StdioAgentServer {
   }
 
   private init(config: AgentConfig, workspace: string, history: ChatMessage[] = []): void {
+    // TEACHING: project instructions are read once per session here, in the child
+    // process that owns the workspace path, then handed to the loop's PromptManager.
+    const projectInstructions = readProjectInstructions(workspace);
     this.loop = this.options.createLoop
       ? this.options.createLoop(config)
-      : createDefaultLoop(config);
+      : createDefaultLoop(config, projectInstructions);
     this.workspace = workspace;
     this.history = history;
   }
@@ -219,12 +223,14 @@ export function reconstructTurn(events: AgentStreamEvent[]): ChatMessage[] {
   return messages;
 }
 
-function createDefaultLoop(config: AgentConfig): LoopLike {
+function createDefaultLoop(config: AgentConfig, projectInstructions = ''): LoopLike {
   const llm = new DeepseekAdapter({ apiKey: config.apiKey, model: config.model });
-  return new AgentLoop(llm, createToolExecutor(), new PromptManager(config.systemPrompt || undefined), {
-    maxIterations: MAX_ITERATIONS,
-    tokenBudget: config.tokenBudget,
-  });
+  return new AgentLoop(
+    llm,
+    createToolExecutor(),
+    new PromptManager(config.systemPrompt || undefined, projectInstructions),
+    { maxIterations: MAX_ITERATIONS, tokenBudget: config.tokenBudget },
+  );
 }
 
 /**
